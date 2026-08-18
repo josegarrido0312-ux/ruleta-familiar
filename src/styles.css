@@ -1,0 +1,1175 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+
+  /* Gradiente más amplio para poder animarlo */
+  background: linear-gradient(-45deg, #3b1c61, #1a1c29, #192a56, #2d132c);
+  background-size: 400% 400%;
+  color: #ffffff;
+  overflow: hidden;
+
+  /* Animación de transición de ambiente (20 segundos) */
+  animation: ambientTransition 20s ease infinite;
+}
+
+/* Capa flotante de partículas / polvo de estrellas */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+  opacity: 0.6;
+  z-index: -1; /* Lo mantiene detrás de todo */
+  pointer-events: none;
+  /* Animación de movimiento lento infinito */
+  animation: floatingStars 100s linear infinite;
+}
+
+/* Fotogramas clave para las animaciones del fondo */
+@keyframes ambientTransition {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes floatingStars {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-50%, -50%);
+  }
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  animation: twinkleBackground 8s ease-in-out infinite;
+}
+
+/* Clases utilitarias que usaremos en los componentes */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: transparent;
+}
+
+/* Estilos específicos de la Ruleta */
+.roulette-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  width: 100%;
+}
+
+.roulette-header {
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: flex-start;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid rgba(72, 219, 251, 0.4); /* Borde celeste sutil */
+  border-radius: 50%; /* Esto crea la forma de burbuja redonda */
+  width: 55px;
+  height: 55px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3),
+    inset 0 0 10px rgba(72, 219, 251, 0.1);
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+/* Efecto al pasar el mouse por encima (la burbuja brilla) */
+.icon-btn:hover {
+  transform: scale(1.1);
+  background: rgba(72, 219, 251, 0.2);
+  border-color: rgba(72, 219, 251, 0.8);
+  box-shadow: 0 0 20px rgba(72, 219, 251, 0.6);
+}
+
+/* El engranaje gira constantemente dentro de la burbuja */
+.icon-btn span {
+  display: inline-block;
+  animation: spinGear 6s linear infinite;
+}
+
+@keyframes spinGear {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Asegurarnos de que el header tenga buen margen */
+.roulette-header {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  z-index: 50;
+}
+
+.wheel-wrapper {
+  position: relative;
+  width: 500px; /* Aumentado de 320px a 500px */
+  height: 500px; /* Aumentado de 320px a 500px */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px; /* Le da un poco de respiro respecto al título */
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transition: transform 8s cubic-bezier(0.25, 0.1, 0.15, 1);
+  overflow: hidden;
+
+  /* NUEVO: Evita que el borde expanda el tamaño total de la rueda */
+  box-sizing: border-box;
+
+  border: 5px solid #1e272e;
+  box-shadow: inset 0px 0px 20px rgba(0, 0, 0, 0.9),
+    inset 0px 0px 50px rgba(0, 0, 0, 0.5), 0 15px 35px rgba(0, 0, 0, 0.7);
+}
+
+.pointer {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  z-index: 10;
+
+  /* --- 1. EL CONTORNO NEGRO (Triángulo más grande) --- */
+  width: 0;
+  height: 0;
+  border-left: 33px solid transparent; /* 3px más ancho */
+  border-right: 33px solid transparent; /* 3px más ancho */
+  border-top: 60px solid #1a1a1a; /* 5px más largo, color negro/gris oscuro */
+
+  /* Mantenemos la sombra 3D en el borde exterior */
+  filter: drop-shadow(0px 5px 4px rgba(0, 0, 0, 0.4));
+}
+
+/* --- 2. EL RELLENO ROJO (Triángulo interior) --- */
+.pointer::after {
+  content: "";
+  position: absolute;
+
+  /* Lo ubicamos matemáticamente para que deje exactamente 3px de borde negro visible */
+  top: -57px;
+  left: -30px;
+
+  /* Dibujamos el triángulo original en color rojo */
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-top: 55px solid #d32f2f;
+}
+
+/* Cuando la ruleta gira, el puntero mantiene la tensión con destellos de neón */
+.pointer.spinning {
+  animation: neonPulse 0.3s infinite alternate ease-in-out;
+}
+
+/* Cuando la ruleta gira, el puntero comienza a latir con brillo de neón intenso */
+.pointer.spinning {
+  animation: neonPulse 0.3s infinite alternate ease-in-out;
+}
+
+.spin-btn {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background-color: #b8222f; /* Fondo rojo llamativo */
+  color: #ffffff; /* Letras blancas */
+  border: none;
+  font-weight: bold;
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 5;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s;
+
+  /* Animación de pulso con destello rojo */
+  animation: pulseBtn 2s infinite ease-in-out;
+  /* NUEVO: Contorno negro sólido */
+  border: 2px solid #1a1a1a; /* Usamos un negro grisáceo oscuro muy elegante, o puedes usar "black" */
+}
+
+.spin-btn:active {
+  transform: scale(0.95);
+}
+
+.spin-btn:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* Posicionamiento matemático de los textos dentro del círculo */
+.prize-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250px;
+  height: 30px;
+  margin-top: -15px;
+  transform-origin: 0% 50%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  /* NUEVO: Aumentamos a 40px para alejar el texto de la sombra oscura */
+  padding-right: 40px;
+
+  /* NUEVO: Asegura que el padding empuje hacia el centro y no estire el contenedor */
+  box-sizing: border-box;
+}
+
+.prize-text {
+  color: white;
+  font-weight: 600;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px; /* Como la ruleta es más grande, el texto ahora puede ser más largo sin cortarse */
+}
+
+/* --- ESTILOS DEL PANEL DE CONFIGURACIÓN --- */
+.config-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  max-width: 680px; /* <-- ¡AQUÍ ESTÁ EL CAMBIO! Le damos 100px extra */
+  margin: 0 auto;
+  background-color: #1a1c29;
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #2d3436;
+}
+
+.icon-btn-close {
+  background: transparent;
+  border: none;
+  color: #0984e3;
+  font-size: 24px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.config-title-box {
+  background-color: #353b48;
+  padding: 8px 40px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: white;
+}
+
+.config-placeholder {
+  width: 24px;
+}
+
+.config-list-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 55px 10px 20px;
+  font-size: 14px;
+  color: white;
+  font-weight: bold;
+}
+
+.prizes-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 20px;
+}
+
+.prize-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 12px;
+}
+
+.color-indicator {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.prize-input {
+  /* CAMBIO: Quitamos el flex-grow para que no se coma todo el espacio */
+  /* flex-grow: 1; <-- BORRA ESTA LÍNEA */
+
+  /* NUEVO: Le damos un tamaño fijo pero flexible */
+  width: 110px;
+  max-width: 120%; /* Asegura que nunca ocupe más de la mitad de la fila */
+
+  background-color: #353b48;
+  border: none;
+  color: white;
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+}
+
+.weight-input {
+  width: 50px;
+  background-color: #353b48;
+  border: none;
+  color: white;
+  padding: 12px 5px;
+  border-radius: 6px;
+  font-size: 16px;
+  text-align: center;
+  outline: none;
+}
+
+.delete-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: 2px solid #ff6b6b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.minus-icon {
+  width: 16px;
+  height: 2px;
+  background-color: #ff6b6b;
+}
+
+.config-actions {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.add-btn,
+.done-btn {
+  background-color: #00a8ff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.add-btn {
+  padding: 10px;
+  font-size: 30px;
+}
+
+.done-btn {
+  padding: 15px;
+  font-size: 18px;
+}
+
+/* --- SECCIÓN 9: ESTILOS DEL CARTEL GANADOR (MODAL) --- */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85); /* Fondo oscuro semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease-out; /* Animación de aparición */
+}
+
+.modal-content {
+  background-color: #2d3436;
+  padding: 50px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  border: 3px solid #00a8ff;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto de rebote */
+}
+
+.modal-content h2 {
+  margin: 0 0 15px 0;
+  font-size: 28px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.winner-name {
+  font-size: 45px;
+  font-weight: 900;
+  margin-bottom: 35px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+}
+
+.close-modal-btn {
+  background-color: #00a8ff;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.1s, background-color 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 168, 255, 0.4);
+}
+
+.close-modal-btn:hover {
+  background-color: #0097e6;
+  transform: scale(1.05);
+}
+
+.close-modal-btn:active {
+  transform: scale(0.95);
+}
+
+/* Animaciones Clave */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* --- SECCIÓN 9.5: TEXTOS PRINCIPALES --- */
+.game-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+
+.titles-container {
+  text-align: center;
+  margin-bottom: 10px;
+  z-index: 10;
+  animation: fadeInDown 0.8s ease-out;
+  animation: floatTitles 4s ease-in-out infinite;
+
+  /* Nuevas propiedades de vidrio translúcido */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 15px 35px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.main-title {
+  font-size: 38px;
+  margin: 0;
+  color: #feca57; /* Color dorado */
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 4px 15px rgba(254, 202, 87, 0.5), 2px 2px 0px #d35400;
+}
+
+.sub-title {
+  font-size: 20px;
+  margin: 10px 0 0 0;
+  color: #48dbfb; /* Color celeste brillante */
+  font-weight: 500;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+  font-style: italic;
+}
+
+/* Animación de entrada para el título */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ajuste sutil para que el botón de configuración no tape el título */
+.roulette-header {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: auto;
+  padding: 0;
+}
+
+/* --- IDEA 1: ANIMACIÓN DE PULSO PARA EL BOTÓN --- */
+@keyframes pulseBtn {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 15px rgba(255, 71, 87, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+  }
+}
+
+/* --- IDEA 2: LUCES DE CASINO (MARQUEE RING) --- */
+.casino-ring {
+  position: absolute;
+  /* Ligeramente más grande que los 500px de la ruleta para envolverla con elegancia */
+  width: 524px;
+  height: 524px;
+  border-radius: 50%;
+  border: 6px dotted #ffffff; /* Borde punteado simulando ampolletas */
+  box-shadow: 0 0 20px rgba(254, 202, 87, 0.6),
+    inset 0 0 20px rgba(254, 202, 87, 0.6);
+  animation: blinkLights 1.2s infinite alternate ease-in-out;
+  pointer-events: none; /* Para que no interrumpa los clics del mouse */
+  z-index: 2;
+}
+
+/* Animación de parpadeo y cambio de color festivo */
+@keyframes blinkLights {
+  0% {
+    border-color: #ff4757; /* Rojo vibrante */
+    box-shadow: 0 0 10px #ff4757, inset 0 0 10px #ff4757;
+  }
+  50% {
+    border-color: #feca57; /* Dorado / Amarillo */
+    box-shadow: 0 0 25px #feca57, inset 0 0 25px #feca57;
+  }
+  100% {
+    border-color: #48dbfb; /* Celeste brillante */
+    box-shadow: 0 0 10px #48dbfb, inset 0 0 10px #48dbfb;
+  }
+}
+
+@keyframes neonPulse {
+  0% {
+    transform: scale(1);
+    color: #ffffff;
+    text-shadow: 0 0 10px #ff4757, 0 0 20px #ff4757, 0 0 30px #ff4757;
+  }
+  100% {
+    transform: scale(1.15);
+    color: #feca57;
+    text-shadow: 0 0 20px #feca57, 0 0 35px #feca57, 0 0 50px #feca57;
+  }
+}
+
+@keyframes neonPulse {
+  0% {
+    transform: scale(1);
+    color: #ffffff;
+    text-shadow: 0 0 10px #ff4757, 0 0 20px #ff4757, 0 0 30px #ff4757;
+  }
+  100% {
+    transform: scale(1.15);
+    color: #feca57;
+    text-shadow: 0 0 20px #feca57, 0 0 35px #feca57, 0 0 50px #feca57;
+  }
+}
+
+/* --- LÍNEAS DIVISORIAS DE LOS PREMIOS --- */
+.slice-border {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250px;
+  height: 2px; /* Grosor reducido a la mitad */
+  background-color: #1e272e;
+  transform-origin: 0% 50%;
+  margin-top: -1px; /* La mitad de 2px para que quede centrada perfecta */
+  z-index: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4); /* Sombra más pequeña y elegante */
+}
+
+/* --- DISTRIBUCIÓN DEL ESTUDIO (IZQ / DER) --- */
+.game-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 120px; /* Separación entre ruleta y mascota */
+  margin-top: 20px;
+  width: 100%;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wheel-section {
+  position: relative;
+}
+
+/* --- SOMBRA DEL PISO 3D --- */
+.floor-shadow {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 450px;
+  height: 50px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  z-index: -1;
+  border-radius: 50%;
+}
+
+/* --- FOCOS DE ESCENARIO (SPOTLIGHTS) --- */
+.spotlight {
+  position: absolute;
+  bottom: -10vh;
+  width: 25vw;
+  height: 120vh;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.15), transparent);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50% 50% 0 0;
+  filter: blur(15px);
+}
+.spotlight.left {
+  left: 5%;
+  transform-origin: bottom center;
+  animation: sweepLeft 8s infinite alternate ease-in-out;
+}
+.spotlight.right {
+  right: 5%;
+  transform-origin: bottom center;
+  animation: sweepRight 10s infinite alternate ease-in-out;
+}
+
+@keyframes sweepLeft {
+  0% {
+    transform: rotate(10deg);
+  }
+  100% {
+    transform: rotate(35deg);
+  }
+}
+@keyframes sweepRight {
+  0% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(-35deg);
+  }
+}
+
+/* --- MASCOTA / ANIMACIONES --- */
+.mascot-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+}
+.mascot {
+  font-size: 160px; /* Tamaño del personaje */
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.5));
+  transition: transform 0.3s ease;
+  user-select: none;
+  z-index: 10;
+}
+
+/* Estados de animación de la mascota */
+.mascot.idle {
+  animation: mascotFloat 4s infinite alternate ease-in-out;
+}
+.mascot.spinning {
+  animation: mascotShake 0.5s infinite;
+}
+.mascot.surprised {
+  transform: scale(1.2);
+  animation: mascotSurprise 1.5s ease-out;
+}
+.mascot.celebrating {
+  animation: mascotJump 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes mascotFloat {
+  0% {
+    transform: translateY(0px) rotate(-5deg);
+  }
+  100% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+@keyframes mascotShake {
+  0% {
+    transform: translate(3px, 2px) rotate(0deg);
+  }
+  25% {
+    transform: translate(-2px, -3px) rotate(-2deg);
+  }
+  50% {
+    transform: translate(-4px, 0px) rotate(2deg);
+  }
+  75% {
+    transform: translate(3px, 3px) rotate(0deg);
+  }
+  100% {
+    transform: translate(1px, -2px) rotate(-1deg);
+  }
+}
+@keyframes mascotSurprise {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3) translateY(-30px);
+  }
+  100% {
+    transform: scale(1.2) translateY(0);
+  }
+}
+@keyframes mascotJump {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-60px) scale(1.1);
+  }
+}
+
+/* --- OVERLAY PARA ILUMINAR AL GANADOR --- */
+.wheel-highlight-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  z-index: 3; /* Se superpone a los demás colores y textos, excepto al ganador */
+  pointer-events: none;
+  animation: fadeOverlayIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.config-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.config-panel {
+  background: #1a1e29;
+  width: 460px; /* <--- CAMBIADO de 400px a 460px */
+  max-height: 85vh;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: white;
+  font-family: sans-serif;
+}
+
+/* --- HEADER --- */
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.config-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.close-btn {
+  background: none;
+  border: none;
+  color: #48dbfb;
+  font-size: 20px;
+  cursor: pointer;
+}
+.spacer {
+  width: 20px;
+} /* Para centrar el título */
+
+/* --- LABELS --- */
+.config-labels {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 50px;
+  font-size: 12px;
+  color: #a0a5b5;
+  margin-bottom: 10px;
+}
+
+/* --- LISTA DE PREMIOS --- */
+.prizes-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-right: 5px; /* Espacio para el scrollbar */
+}
+
+/* Scrollbar personalizado */
+.prizes-list::-webkit-scrollbar {
+  width: 6px;
+}
+.prizes-list::-webkit-scrollbar-thumb {
+  background: #353b48;
+  border-radius: 3px;
+}
+
+.prize-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box; /* <--- NUEVO: evita que los bordes expandan la fila */
+}
+
+/* --- EL TRUCO DEL SELECTOR DE COLOR --- */
+.color-picker-wrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden; /* Corta el input feo cuadrado */
+  border: 2px solid #2f3640;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.color-picker-wrapper:hover {
+  transform: scale(1.1);
+}
+
+.color-picker-wrapper input[type="color"] {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 55px; /* Más grande que el contenedor para que no se vean los bordes */
+  height: 55px;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  background: none;
+  opacity: 0; /* Lo hacemos invisible, pero sigue siendo clickeable */
+}
+
+/* --- INPUTS DE TEXTO Y NÚMERO --- */
+.prize-name-input {
+  flex: 1;
+  background: #2f3640;
+  border: 1px solid transparent;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border 0.3s;
+}
+.prize-name-input:focus {
+  border: 1px solid #48dbfb;
+  outline: none;
+}
+
+.prize-weight-input {
+  width: 50px;
+  background: #2f3640;
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* --- BOTONES DE ACCIÓN --- */
+.delete-btn {
+  background: none;
+  border: 2px solid #ff4757;
+  color: #ff4757;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  flex-shrink: 0; /* <--- NUEVO: Impide que el botón se encoge o salga de la fila */
+}
+.delete-btn:hover {
+  background: #ff4757;
+  color: white;
+}
+
+.config-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add-btn,
+.save-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.add-btn {
+  background: #48dbfb;
+  color: #1a1e29;
+}
+.save-btn {
+  background: #1dd1a1;
+  color: #1a1e29;
+} /* Lo puse verde para que destaque que es para guardar */
+
+/* --- BOTONES MASIVOS --- */
+.mass-actions-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.secondary-btn {
+  flex: 1;
+  background: transparent;
+  color: #a0a5b5;
+  border: 1px solid #48dbfb;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.secondary-btn:hover {
+  background: rgba(72, 219, 251, 0.1);
+  color: #48dbfb;
+}
+
+/* --- EFECTOS DE FONDO DINÁMICO --- */
+
+/* Hace que el brillo general del fondo palpite suavemente (Estrellas tintineando) */
+@keyframes twinkleBackground {
+  0% {
+    filter: brightness(1) contrast(1);
+  }
+  50% {
+    filter: brightness(0.85) contrast(1.1);
+  }
+  100% {
+    filter: brightness(1) contrast(1);
+  }
+}
+
+/* Hace que tu contenedor de títulos flote muy levemente para dar sensación 3D */
+@keyframes floatTitles {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* --- BOTÓN DE PREMIO / CASTIGO --- */
+.type-btn {
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.type-btn.is-winner {
+  border-color: #1dd1a1;
+  background: rgba(29, 209, 161, 0.1);
+}
+
+.type-btn.is-loser {
+  border-color: #ff4757;
+  background: rgba(255, 71, 87, 0.1);
+}
+
+.type-btn:hover {
+  transform: scale(1.1);
+}
+
+/* --- FASE 2: ESTADO DE DERROTA PARA LA MASCOTA --- */
+
+.mascot-loser {
+  /* Truco visual: Le quitamos el color alegre, la volvemos sepia y giramos el tono para que se vea azulada/enferma */
+  filter: grayscale(50%) sepia(60%) hue-rotate(180deg) saturate(150%);
+
+  /* Le aplicamos la animación de temblor triste */
+  animation: loserShake 0.5s ease-in-out infinite;
+
+  /* Hacemos que la transición sea suave si pasa de feliz a triste */
+  transition: filter 0.5s ease;
+}
+
+/* Animación de "Mareo" o "Temblor de miedo" */
+@keyframes loserShake {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate(-3px, 2px) rotate(-4deg) scale(0.95);
+  }
+  50% {
+    transform: translate(0, 0) rotate(0deg) scale(0.95);
+  }
+  75% {
+    transform: translate(3px, -2px) rotate(4deg) scale(0.95);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+}
+
+/* --- ADAPTACIÓN RESPONSIVA PARA CELULARES --- */
+@media screen and (max-width: 768px) {
+  /* Achicamos la ruleta para que quepa en la pantalla del celular (de 500px a 320px) */
+  .wheel-wrapper {
+    width: 320px !important;
+    height: 320px !important;
+    margin: 10px auto !important;
+  }
+
+  /* Reducimos el anillo de luces acorde a la nueva ruleta */
+  .casino-ring {
+    width: 340px !important;
+    height: 340px !important;
+  }
+
+  /* Apilamos la ruleta y la mascota verticalmente para que no peleen por el espacio */
+  .game-area {
+    flex-direction: column !important;
+    gap: 20px !important;
+    margin-top: 10px !important;
+  }
+
+  /* Hacemos la mascota un poco más compacta en móviles */
+  .mascot {
+    font-size: 100px !important;
+  }
+
+  /* Aseguramos que el título superior no tape la ruleta */
+  .main-title {
+    font-size: 24px !important;
+  }
+
+  .sub-title {
+    font-size: 14px !important;
+  }
+}
+
+/* --- CORRECCIÓN DE TEXTOS PARA CELULARES --- */
+@media screen and (max-width: 768px) {
+  /* Achicamos el contenedor del texto del premio de 250px a 150px */
+  .prize-label {
+    width: 150px !important;
+    margin-top: -10px !important;
+    padding-right: 20px !important;
+  }
+
+  /* Reducimos el ancho máximo del texto y achicamos la letra para que quepa perfecto */
+  .prize-text {
+    max-width: 90px !important;
+    font-size: 11px !important;
+  }
+}
